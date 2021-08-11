@@ -1,0 +1,12 @@
+% A list appending example. 
+
+% The initial graph.
+ret = append([a, b], [c]).
+
+append_cons @@
+R = append([H | T], L)
+:- R = [H | append(T, L)].
+
+append_nil @@
+R = append([], L)
+:- R = L.

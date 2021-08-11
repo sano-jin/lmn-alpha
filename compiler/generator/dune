@@ -1,0 +1,4 @@
+(library
+ (name generator)
+ (public_name lmn.generator)
+ (libraries lmn.util lmn.corelang lmn.analyzer))

@@ -1,0 +1,4 @@
+(library
+ (name eval)
+ (public_name lmn.vm)
+  (libraries lmn.util lmn.parser lmn.corelang lmn.analyzer lmn.generator lmn.compiler))

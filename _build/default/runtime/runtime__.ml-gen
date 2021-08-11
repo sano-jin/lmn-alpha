@@ -1,0 +1,10 @@
+(** @canonical Runtime.Dump *)
+module Dump = Runtime__Dump
+
+
+(** @canonical Runtime.Loader *)
+module Loader = Runtime__Loader
+
+
+(** @canonical Runtime.Pretty *)
+module Pretty = Runtime__Pretty

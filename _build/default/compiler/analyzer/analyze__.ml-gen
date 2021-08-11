@@ -1,0 +1,6 @@
+(** @canonical Analyze.Port *)
+module Port = Analyze__Port
+
+
+(** @canonical Analyze.Sem_graph *)
+module Sem_graph = Analyze__Sem_graph

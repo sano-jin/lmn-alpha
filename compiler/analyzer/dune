@@ -1,0 +1,4 @@
+(library
+ (name analyze)
+ (public_name lmn.analyzer)
+  (libraries lmn.util lmn.corelang))

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+cd "`dirname "$0"`"'/..'
+test () {
+    echo "- testing $1"
+    opam exec -- dune exec lmn -- example/$1.lmn -t > test/tmp/output_$1.log
+    opam exec -- patdiff test/tmp/output_$1.log test/expected/expected_output_$1.log || exit 1
+}
+echo "testing"
+mkdir -p test/tmp
+
+test append
+test test
+test test2
+test test3
+test test4
+test test5
+test test6
+
+echo "OK"
+
+rm -rf test/tmp

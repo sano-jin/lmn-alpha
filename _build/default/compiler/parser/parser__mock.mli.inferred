@@ -1,0 +1,28 @@
+type token =
+    VBAR
+  | RPAREN
+  | RBRACKET
+  | LinkName of string
+  | LPAREN
+  | LBRACKET
+  | EQ
+  | EOF
+  | DOT
+  | COMMA
+  | COLMIN
+  | AtomName of string
+  | ATAT
+val menhir_begin_marker : int
+val xv_rule : Syntax.proc * Syntax.proc
+val xv_program : Syntax.proc
+val xv_proc : Syntax.proc
+val xv_normal_atom : Syntax.arg
+val xv_maybe_name_rule : Syntax.proc
+val xv_main : Syntax.proc
+val xv_graph : Syntax.arg
+val xv_cons_atom : Syntax.arg
+val xv_block : Syntax.proc
+val xv_atom : Syntax.arg
+val xv_args_inner : Syntax.arg list
+val xv_arg : Syntax.arg
+val menhir_end_marker : int

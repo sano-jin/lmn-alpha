@@ -1,0 +1,4 @@
+(library
+ (name compiler)
+ (public_name lmn.compiler)
+  (libraries lmn.util lmn.parser lmn.corelang lmn.analyzer lmn.generator))

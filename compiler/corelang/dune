@@ -1,0 +1,4 @@
+(library
+ (name corelang)
+ (public_name lmn.corelang)
+  (libraries lmn.util lmn.parser))

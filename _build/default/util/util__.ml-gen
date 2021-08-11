@@ -1,0 +1,2 @@
+(** @canonical Util.Union_find *)
+module Union_find = Util__Union_find
