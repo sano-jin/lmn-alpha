@@ -1,4 +1,4 @@
 (library
  (name runtime)
  (public_name lmn.runtime)
-  (libraries lmn.util lmn.parser lmn.corelang lmn.analyzer lmn.generator lmn.compiler lmn.vm))
+  (libraries lmn.util lmn.parser lmn.corelang lmn.analyzer lmn.generator lmn.compiler lmn.vm lmn.pretty))
