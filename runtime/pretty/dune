@@ -1,0 +1,4 @@
+(library
+ (name pretty)
+ (public_name lmn.pretty)
+  (libraries lmn.util lmn.parser lmn.vm))
