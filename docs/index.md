@@ -7,7 +7,7 @@ flat lmntal の簡単なコンパイラと仮想機械
 
 
 紹介スライド：
-<object data="./lmn-alpha.pdf" type="application/pdf" width="700px" height="700px">
+<object data="./lmn-alpha.pdf" type="application/pdf" width="100%" height="700px">
 	<embed src="./lmn-alpha.pdf" />
 		<p>This browser does not support PDFs. Please download the PDF to view it:
 			<a href="./lmn-alpha.pdf">Download PDF</a>
