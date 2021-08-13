@@ -6,10 +6,18 @@
 flat lmntal の簡単なコンパイラと仮想機械
 
 
+紹介スライド：
+<object data="./lmn-alpha.pdf" type="application/pdf" width="700px" height="700px">
+	<embed src="./lmn-alpha.pdf" />
+		<p>This browser does not support PDFs. Please download the PDF to view it:
+			<a href="./lmn-alpha.pdf">Download PDF</a>
+		</p>
+</object>
+	
 
 ## プログラム構成
 
-全部で 897 LOC
+全部で 943 LOC
 
 [ocamldoc により生成したドキュメント](https://sano-jin.github.io/lmn-alpha/ocamldoc/lmn/index.html)
 
@@ -28,10 +36,14 @@ flat lmntal の簡単なコンパイラと仮想機械
 	  を生成する
 
 ### Runtime
-233 LOC
+280 LOC
 
-- vm: 129 LOC
+- vm: 137 LOC
     - 仮想マシン
+
+- pretty: 69 LOC
+    - Pretty printer
+
 
 ### Utility
 - util: 118 LOC
