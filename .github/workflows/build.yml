@@ -1,7 +1,7 @@
 name: Main workflow
 
 on:
-  pull_request:
+  # pull_request:
   push:
   schedule:
     # Prime the caches every Monday
