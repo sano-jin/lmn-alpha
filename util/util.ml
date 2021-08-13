@@ -2,6 +2,12 @@
     
 *)
 
+
+(** load Doubly linked list *)
+module DList = Dlist
+		 
+
+
 (** 基本的なコンビネータなど *)
 
 
@@ -55,6 +61,7 @@ let (<|>) l r =
   if Option.is_some l then l
   else r ()
 
+
 (** f を適用してどれか一つでも Some を返したらそれを返して終わりにする *)
 let rec one_of f = function
   | [] -> None
@@ -69,8 +76,9 @@ let maybe default = function
 
 (** monadic combinators for the traversible type *)
 
-(** *)
+(** monadic cons *)
 let (<::>) h t = List.cons h <$> t
+
 
 (** monadic [fold_left] *)
 let rec foldM f acc = function
@@ -84,7 +92,6 @@ let rec foldM f acc = function
     - Set を用いるようにリファクタリングしても良いかも 
 *)
 let set_minus l r = List.filter (not <. flip List.mem r) l
-let set_minus_q l r = List.filter (not <. flip List.memq r) l
 let sym_diff l r = set_minus l r @ set_minus r l
 
 
@@ -108,12 +115,6 @@ let safe_unzip t = curry uncurried_safe_unzip t
 
 
 
-(** 参照型のためのコンビネータ *)
-let update_ref f r = r := f !r
-
-    
-
-
 (** Add 4 * n white spaces to the head of the string
     - ["\t"] の方が良いかも
  *)
@@ -122,17 +123,6 @@ let indent n = (^) @@ String.make (4 * n) ' '
 
 
 (** 入出力のための関数 *)
-
-
-(** デバッグ用の出力を行う
-    - 標準エラー出力に出す
-    - TODO: カラフルにしてみたい
- *)
-let debug_print description message =
-  prerr_endline @@ ">>>> " ^ description;
-  prerr_endline message;
-  prerr_endline "<<<<"
-
 
 
 (** read lines from the given file *)
@@ -147,6 +137,9 @@ let read_file name =
        String.concat "\n" @@ List.rev acc
   in
   loop []
+
+
+
 
 
 (** リスト系 *)
@@ -164,43 +157,6 @@ let index_of elem =
 let fold_left_map2 l =
   second (second List.concat <. List.split) <.. List.fold_left_map l
 								   
-
-
-(** リストから要素を抜き取るための関数群 *)
-
-
-(** リストから要素を抜き取る
-    - 残りの要素のリストも返す
- *)
-let rec pull_out f = function
-  | [] -> None, []
-  | h::t ->
-     match f h with
-     | None -> second (List.cons h) @@ pull_out f t
-     | Some _ as s -> s, t
-
-
-
-(** 要素に Option を返す関数を適用して，初めて Some になったところでリストを分割する
-    - Some になった値も返す
-    - None になった部分のリストの順序も保存する
-    - [break_opt (fun x -> if x >= 4 then Some x else None) [1; 2; 3; 4; 5; 6]
-       ---> Some (4, ([1; 2; 3], [5; 6]))
-      ]
-    - [break_opt (fun x -> if x > 6 then Some x else None) [1; 2; 3; 4; 5; 6]
-       ---> None
-      ]
-    @return (Some (f a, (a list, a list)) | None)
- *)
-let rec break_opt f = function
-  | [] -> None
-  | h::t ->
-     match f h with
-     | Some s -> Some (s, ([], t))
-     | None ->
-	let+ s, (l, r) = break_opt f t in
-        s, (h::l, r)
-			   
 
 
 (** 要素に Option を返す関数を適用して，初めて Some になったところでリストを分割する
@@ -224,7 +180,6 @@ let rev_break_opt f =
   helper []
 
 
-	 
 
 
 (** Tail-recursive List.concat with List.rev_append
@@ -275,12 +230,6 @@ let fold_left_mapi f acc xs =
 
 
 
-
-(** [z[y/x]] *)
-let substitute (x, y) z =
-  if z = x then y else z
-	 
-
 (** リストを "回転" する
     - [roll [1; 2; 3; 4] ---> [2; 3; 4; 1]]
     - TODO: もっと効率の良い実装にする．キューを使うなど
@@ -288,7 +237,6 @@ let substitute (x, y) z =
 let roll = function
   | [] -> []
   | h::t -> t@[h]
-
 
 
 
@@ -304,8 +252,7 @@ let rec whileM f x =
   | Some x -> whileM f x
 
 
-
-
+(** リストの末尾を除去したリストを返す *)		     
 let rec dropLast1 = function
   | [] -> failwith "cannot drop the last element from an empty list"
   | [_] -> []

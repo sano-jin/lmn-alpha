@@ -7,7 +7,6 @@ open Util
 type prop = {
   verbose: bool;
   trace: bool;
-  show_rules: bool;
   file: string;
   compile_only: bool;
 }
@@ -19,7 +18,6 @@ let verbose = ref false
 let trace = ref false
 let input_files = ref []
 let compile_only = ref false
-let show_rules = ref false
 
 
 let anon_fun filename =
@@ -31,7 +29,6 @@ let speclist =
   [ ("-t", Arg.Set trace, "Trace")
   ; ("-v", Arg.Set verbose, "Output debug information")
   ; ("-c", Arg.Set compile_only, "Compile only")
-  ; ("--show-rules", Arg.Set show_rules, "Show rules")
   ]
 
 
@@ -47,7 +44,6 @@ let load () =
      {
        verbose = !verbose;
        trace = !trace;
-       show_rules = !show_rules || !trace; (* トレース時もルール名を出力することにする *)
        file = read_file file_name;
        compile_only = !compile_only
      }

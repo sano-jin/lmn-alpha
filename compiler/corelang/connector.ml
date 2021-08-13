@@ -57,7 +57,7 @@ let substitute_atom = second <. List.map <. substitute_link
     @return (シンボルアトムのリスト，引数が全て自由リンクなコネクタのリストのリスト)
  *)
 let absorb_fusion (symbol_atoms, free_connectors, connectors) =
-  let+ ((x, y), (l, r)) = break_opt find_fusion connectors in
+  let+ ((x, y), (l, r)) = rev_break_opt find_fusion connectors in
   let symbol_atoms = List.map (substitute_atom (x, y)) symbol_atoms in
   let r = List.map (both @@ substitute_link (x, y)) r in
   (symbol_atoms, l::free_connectors, r)

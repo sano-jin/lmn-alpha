@@ -2,6 +2,7 @@
 
 open Generator
 open Vm
+open Util
 
 
 
@@ -14,15 +15,14 @@ let exec_unrewindable_inst register = function
   | PeakAtom (_, _) -> failwith "Bug: PeakAtom is a rewindable instruction"
   | CheckFunctor (reg_i, functor_) -> 
      (* reg_i に格納したシンボルアトムのファンクタが functor_ であることを確認する *)
-     let (p, xs) = (!) register.(reg_i) in
-     (p, Array.length xs) = functor_
+     get_functor register reg_i = functor_
 			      
 		       
   | DerefAtom (dst_reg_i, src_reg_i, src_port_i, dst_port_i) ->
      (* レジスタ [src_reg_i] が参照するアトムの [src_port_i] 番目の引数の持つアトムへの参照を
 	このリンクが相手先で [dst_port_i] 番目の引数に接続されていることを確認して，レジスタ [dst_reg_i] に格納する
       *)
-     let (_, xs) = (!) register.(src_reg_i) in
+     let (_, xs) = DList.value register.(src_reg_i) in
      let link_obj = xs.(src_port_i) in (
        match link_obj with
        | NormalLink (port_i, atom_ref) ->
@@ -51,6 +51,7 @@ let exec_unrewindable_inst register = function
 
 
 
+
 (** ルール左辺のマッチング実行のトップレベル *)
 let match_ register atom_lists =
   (* ルール左辺のマッチングを行う．
@@ -67,7 +68,8 @@ let match_ register atom_lists =
        ( match AtomLists.find_opt functor_ atom_lists with
 	 | None -> false   (* そのファンクタのアトムリストが存在しなかった *)
 	 | Some atom_list -> (* アトムリストを取得できた *)
-	    peak_atom (reg_i, functor_) rest_insts atom_list
+	    peak_atom (reg_i, functor_) rest_insts
+       	    @@ DList.first atom_list
        )
     | inst::rest_insts ->
        exec_unrewindable_inst register inst
@@ -78,11 +80,12 @@ let match_ register atom_lists =
      - アトムリストをファンクタで分類されているため，ファンクタが異なるため失敗すると言うことはない
    *)
   and peak_atom (reg_i, functor_) rest_insts = function
-    | [] -> false  (* もうアトムリストにアトムが残っていない *)
-    | atom_ref::t ->
-       register.(reg_i) <- atom_ref;
+    | None -> false  (* もうアトムリストにアトムが残っていない *)
+    | Some elt ->
+       register.(reg_i) <- elt;
        find_atom rest_insts (* 残りの命令も試す *)
-       || peak_atom (reg_i, functor_) rest_insts t (* peak したけどその後のマッチングで失敗したのでアトムリストの tail を試す *)
+       (* peak したけどその後のマッチングで失敗したのでアトムリストの tail を試す *)
+       || peak_atom (reg_i, functor_) rest_insts @@ DList.next elt
   in find_atom
 	      
 	    

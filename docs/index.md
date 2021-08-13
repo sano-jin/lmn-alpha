@@ -17,7 +17,7 @@ flat lmntal の簡単なコンパイラと仮想機械
 
 ## プログラム構成
 
-全部で 943 LOC
+全部で 997 LOC
 
 [ocamldoc により生成したドキュメント](https://sano-jin.github.io/lmn-alpha/ocamldoc/lmn/index.html)
 
@@ -36,9 +36,9 @@ flat lmntal の簡単なコンパイラと仮想機械
 	  を生成する
 
 ### Runtime
-280 LOC
+296 LOC
 
-- vm: 137 LOC
+- vm: 153 LOC
     - 仮想マシン
 
 - pretty: 69 LOC
@@ -46,7 +46,7 @@ flat lmntal の簡単なコンパイラと仮想機械
 
 
 ### Utility
-- util: 118 LOC
+- util: 155 LOC
     - 共用モジュール
 
 

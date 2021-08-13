@@ -14,16 +14,13 @@ let reduce atom_list (rule_name, (reg_size, (lhs_insts, rhs_insts))) =
   (* レジスタの確保 *)
   let register = init_register reg_size in
   if match_ register atom_list lhs_insts
-  then (
-      (*    prerr_endline @@ "----> " ^ rule_name;  *)
-    Some ((rule_name: string), pushouts register atom_list rhs_insts)
-  )
+  then Some (rule_name, pushouts register atom_list rhs_insts)
   else None
 
 	 
 	 
 (** Try reduce one step with the given atoms and rules *)
-let run_once = one_of <. reduce
+let run_once rules = one_of @@ reduce rules
 
 
 

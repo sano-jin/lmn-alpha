@@ -15,6 +15,7 @@ open Util
 open Parse  
 
 
+       
 (** アトム名でソートするために補助的に用いるアトム名の分類のための型．
     OCaml の Pervasives の compare はユーザ定義の ADT でも勝手に帰納的に比較してくれるので，
     これを活用してこの型に変換してから compare と一緒にソート関数に投げれば，
@@ -28,6 +29,8 @@ type atom_name_type =
 	| ANUnexpected  (** 予想外のアトム名． e.g. 日本語, escape sequence, 空文字列, ...  *)
 
 
+
+	    
 (** 文字列のアトム名を [atom_name_type] に変換する
     - まだ，String 型に関しては実装していない．
  *)
@@ -48,15 +51,16 @@ let atom_name_type_of p =
 (** ファンクタを比較する．
     まずはアトム名のタイプで比較して，同じなら引数の個数で比較する．
  *)	   
-let compare_functor (p, xs) (q, ys) =
+let compare_functor (_, (p, xs)) (_, (q, ys)) =
   compare (atom_name_type_of p, List.length xs) (atom_name_type_of q, List.length ys)
 
 
 (** ファンクタでソートする *)	  
-let functor_sort atoms = List.sort (fun (_, a) (_, b) -> compare_functor a b) atoms
+let functor_sort atoms = List.sort compare_functor atoms
 
 
 
+				   
 (** A helper function for [tpl_sort]
     - あまり美しくないのでリファクタが必要
  *)  
@@ -73,6 +77,7 @@ let rec visit atoms (l, visited) (atom_i, (_, xs) as src_atom) =
     let l, visited = List.fold_left (visit atoms) (l, visited) xs in
     src_atom::l, visited
 
+		   
 (** Topological sort *)
 let tpl_sort atoms = fst @@ List.fold_left (visit atoms) ([], []) atoms
 
@@ -119,14 +124,8 @@ let forest_of_atoms atoms =
   dump_atoms (0, [], atoms)
 
 
-(*
-let pretty_print_d_graph = function
-  | Atom (".", [h; t]) -> string_of_list h t
-  | atom -> string_of_arg atom
- *)
 
-	     
-	     
+
 let pretty_print atoms =
   String.concat ". "
   @@ List.sort compare
