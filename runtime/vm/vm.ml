@@ -11,8 +11,6 @@ type vm_atom = string * link array
 type register = vm_atom ref
 					  
 
-
-
 (** レジスタを初期化するためだけのアドレス（本来はいらない） *)
 let null_ptr: vm_atom ref = ref ("Null", [||])
 
@@ -50,8 +48,15 @@ let free_atom atom_ref =
 
 
 
+(** アトムリストの Map．
+    - それぞれのファンクタ毎のアトムリストの Map になっている．
+*)
+module AtomLists = Map.Make(struct type t = string * int let compare = compare end)
 
 
+			   
+
+  
 
 (** アトムリストの dumper *)
 
@@ -64,8 +69,11 @@ let dump_atom atom_ref2atom_i atom_i (p, xs) =
   atom_i, (p, List.map (dump_link atom_ref2atom_i) @@ Array.to_list  xs)
 
 
-let dump_atom_list atom_refs =
-  List.mapi (dump_atom @@ List.mapi (flip pair) atom_refs) @@ List.map (!) atom_refs
+let dump_atom_list atom_lists =
+  let atom_refs = List.concat_map snd @@ AtomLists.bindings atom_lists in
+  List.mapi (dump_atom @@ List.mapi (flip pair) atom_refs)
+  @@ List.map (!) atom_refs
+								       
 
 
 
