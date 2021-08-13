@@ -1,0 +1,18 @@
+t6, t6, t6.
+
+res = n.
+
+s0 @@ s0, res = S :- res = s(S).
+t0 @@ t0, R = s(S) :- R = S.
+
+rule7 @@ t7 :- t6, t6, t6, t6.
+rule6 @@ t6 :- t5, t5, t5, t5.
+rule5 @@ t5 :- t4, t4, t4, t4.
+rule4 @@ t4 :- t3, t3, t3, t3.
+rule3 @@ t3 :- t2, t2, t2, t2.
+rule2 @@ t2 :- t1, t1, t1, t1.
+rule1 @@ t1 :- s0, t0, s0, t0.
+
+
+
+

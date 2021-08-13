@@ -10,7 +10,7 @@ _Runtime environment_
 - [vm/](vm/)
   - The Virtual Machine.
 
-- [dump.ml](dump.ml)
+- [pretty/](pretty/)
   - Pretty printer for the graph
 
 - [runtime.ml](runtime.ml)
