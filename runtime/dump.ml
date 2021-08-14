@@ -9,7 +9,7 @@ open Util
        
 
 let string_of_link (port_i, atom_i) =
-  Printf.sprintf "%d/%d" port_i atom_i
+  Printf.sprintf "%d/%d" atom_i port_i 
 
 
 let string_of_atom (atom_i, (p, xs)) =

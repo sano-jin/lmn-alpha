@@ -154,8 +154,8 @@ let index_of elem =
        
 
 
-let fold_left_map2 l =
-  second (second List.concat <. List.split) <.. List.fold_left_map l
+let fold_left_map2 f =
+  second (second List.concat <. List.split) <.. List.fold_left_map f
 								   
 
 

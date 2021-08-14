@@ -1,0 +1,6 @@
+
+L1=a(a(a(a(L1)))).
+L2=a(a(a(a(a(L2))))).
+L3=a(a(a(a(a(a(L3)))))).
+
+X=a(a(a(a(a(X))))) :- a_5_deleted.

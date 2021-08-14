@@ -39,10 +39,14 @@ let alpha_atom link_names link_id = function
 			 
 
 (** アルファ変換とアトムの分解
+    - アトムを引数部分に埋め込む略記法に対して割り当てるリンク ID は，
+    ユーザが直接書いた局所リンクの数以上の連続した整数となる．
+    このために [List.length locals] がある．
     @param link_names ユーザが明示的に書いた局所・自由リンク名それぞれのマップオブジェクト
     @return 分解されたアトムのリスト
  *)
-let alpha_atoms link_names = List.concat <. snd <. List.fold_left_map (alpha_atom link_names) 0
+let alpha_atoms (locals, _ as link_names) =
+  List.concat <. snd <. List.fold_left_map (alpha_atom link_names) @@ List.length locals
 
 
 
