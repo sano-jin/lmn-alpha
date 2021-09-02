@@ -1,0 +1,4 @@
+x = a(X,Y,X,Y).
+Ret = a(X,Y,X,Y) :- Ret = b(X,Y,X,Y).
+
+t(P,Q),P=Q.

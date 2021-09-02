@@ -1,207 +1,57 @@
 (** Utility functions.
-    
+    - 基本的なコンビネータ，双方向連結リストなど
 *)
 
-(** 基本的なコンビネータなど *)
+include Combinator
+(** include basic combinators *)
 
+module DList = Dlist
+(** load Doubly linked list *)
 
-(** some very basic combinators *)
-
-(** *)
-let flip f x y = f y x  
-
-let id x = x
-let const x _ = x
-
-let curry f x y = f (x, y)
-let uncurry f (x, y) = f x y
-
-
-		 
-(** tuple の操作のためのコンビネータ *)
-
-(** *)
-let first f (a, b) = (f a, b)
-let second f (a, b) = (a, f b)
-let both f (a, b) = (f a, f b)
-
-let pair x y = (x, y)
-let swap (x, y) = (y, x)
-
-		    
-
-(** compositional functions *)
-
-(** *)
-let (<.) f g = fun x -> f (g x)
-let (<..) f g = fun x y -> f (g x y)
-let (<...) f g = fun x y z -> f (g x y z)
-
-
-	 
-
-(** monadic combinators for the Option type *)
-
-(** *)
-let (>>=) = Option.bind
-let ( let* ) = Option.bind
-
-
-let (<$>) = Option.map
-let ( let+ ) x f = Option.map f x
-
-
-let (<|>) l r = 
-  if Option.is_some l then l
-  else r ()
-
-(** f を適用してどれか一つでも Some を返したらそれを返して終わりにする *)
-let rec one_of f = function
-  | [] -> None
-  | h::t -> f h <|> fun _ -> one_of f t
-
-
-let maybe default = function
-  | None -> default
-  | Some s -> s 
-
-
-
-(** monadic combinators for the traversible type *)
-
-(** *)
-let (<::>) h t = List.cons h <$> t
-
-(** monadic [fold_left] *)
-let rec foldM f acc = function
-  | [] -> Some acc
-  | h::t -> f acc h >>= flip (foldM f) t			     
-
-
-
-
-(** 集合演算
-    - Set を用いるようにリファクタリングしても良いかも 
-*)
-let set_minus l r = List.filter (not <. flip List.mem r) l
-let set_minus_q l r = List.filter (not <. flip List.memq r) l
-let sym_diff l r = set_minus l r @ set_minus r l
-
-
+(** その他の共用関数 *)
 
 (** Either 型の要素のリストを左右に振り分ける *)
 let partitionEithers l = List.partition_map id l
 
-
-(** zip/unzip *)
-
-(** uncurried monadic combine (possibly renamed as [safe_combine]) *)
-let rec uncurried_safe_unzip = function
-  | ([], []) -> Some []
-  | (xh::xt, yh::yt) -> (xh, yh) <::> uncurried_safe_unzip (xt, yt)
-  | _ -> None
-
-(** monadic combine (possibly renamed as [safe_combine]) *)
-let safe_unzip t = curry uncurried_safe_unzip t
-
-
-
-
-
-(** 参照型のためのコンビネータ *)
-let update_ref f r = r := f !r
-
-    
-
-
-(** Add 4 * n white spaces to the head of the string
-    - ["\t"] の方が良いかも
- *)
-let indent n = (^) @@ String.make (4 * n) ' '
-
-
-
 (** 入出力のための関数 *)
-
-
-(** デバッグ用の出力を行う
-    - 標準エラー出力に出す
-    - TODO: カラフルにしてみたい
- *)
-let debug_print description message =
-  prerr_endline @@ ">>>> " ^ description;
-  prerr_endline message;
-  prerr_endline "<<<<"
-
-
 
 (** read lines from the given file *)
 let read_file name =
   let ic = open_in name in
-  let try_read () =
-    try Some (input_line ic) with End_of_file -> None in
-  let rec loop acc = match try_read () with
+  let try_read () = try Some (input_line ic) with End_of_file -> None in
+  let rec loop acc =
+    match try_read () with
     | Some s -> loop (s :: acc)
     | None ->
-       close_in ic;
-       String.concat "\n" @@ List.rev acc
+        close_in ic;
+        String.concat "\n" @@ List.rev acc
   in
   loop []
 
+(** Add 4 * n white spaces to the head of the string
+    - ["\t"] の方が良いかも
+ *)
+let indent n = ( ^ ) @@ String.make (4 * n) ' '
 
-(** リスト系 *)
+(** リスト系の追加関数
+    - List.Extra モジュールなどとして定義した方が良いかも
+ *)
 
 (** リストの要素の添字番号を取得する *)
 let index_of elem =
   let rec helper index = function
     | [] -> None
-    | h::t -> if h = elem then Some index
-	      else helper (succ index) t
-  in helper 0
-       
+    | h :: t -> if h = elem then Some index else helper (succ index) t
+  in
+  helper 0
 
-
-let fold_left_map2 l =
-  second (second List.concat <. List.split) <.. List.fold_left_map l
-								   
-
-
-(** リストから要素を抜き取るための関数群 *)
-
-
-(** リストから要素を抜き取る
-    - 残りの要素のリストも返す
+(**  [('a -> 'b -> 'a * ('c * 'd list)) -> 'a -> 'b list -> 'a * ('c list * 'd list)]
+     2重の fold_left_map．
  *)
-let rec pull_out f = function
-  | [] -> None, []
-  | h::t ->
-     match f h with
-     | None -> second (List.cons h) @@ pull_out f t
-     | Some _ as s -> s, t
-
-
-
-(** 要素に Option を返す関数を適用して，初めて Some になったところでリストを分割する
-    - Some になった値も返す
-    - None になった部分のリストの順序も保存する
-    - [break_opt (fun x -> if x >= 4 then Some x else None) [1; 2; 3; 4; 5; 6]
-       ---> Some (4, ([1; 2; 3], [5; 6]))
-      ]
-    - [break_opt (fun x -> if x > 6 then Some x else None) [1; 2; 3; 4; 5; 6]
-       ---> None
-      ]
-    @return (Some (f a, (a list, a list)) | None)
- *)
-let rec break_opt f = function
-  | [] -> None
-  | h::t ->
-     match f h with
-     | Some s -> Some (s, ([], t))
-     | None ->
-	let+ s, (l, r) = break_opt f t in
-        s, (h::l, r)
-			   
-
+let fold_left_map2 f acc xs =
+  let acc, ys = List.fold_left_map f acc xs in
+  let zs, ws = List.split ys in
+  (acc, (zs, List.concat ws))
 
 (** 要素に Option を返す関数を適用して，初めて Some になったところでリストを分割する
     - Some になった値も返す
@@ -215,17 +65,13 @@ let rec break_opt f = function
  *)
 let rev_break_opt f =
   let rec helper left = function
-  | [] -> None
-  | h::t ->
-     match f h with
-     | None -> helper (h::left) t
-     | Some s -> Some (s, (left, t))
-  in		   
+    | [] -> None
+    | h :: t -> (
+        match f h with
+        | None -> helper (h :: left) t
+        | Some s -> Some (s, (left, t)))
+  in
   helper []
-
-
-	 
-
 
 (** Tail-recursive List.concat with List.rev_append
     - リストのリストを反転させながら結合する
@@ -236,8 +82,6 @@ let rev_break_opt f =
  *)
 let rev_concat_append lists list =
   List.fold_left (flip List.rev_append) list lists
-  
-
 
 (** Tail-recursive List.concat
     - リストのリストを反転させながら結合する
@@ -248,49 +92,30 @@ let rev_concat_append lists list =
  *)
 let rev_concat lists = rev_concat_append [] lists
 
-  
-
-
-
-
-(** [List.fold_left] with indices  *)		
+(** [List.fold_left] with indices  *)
 let fold_lefti f =
   let rec helper i acc = function
     | [] -> acc
-    | h::t -> helper (succ i) (f i acc h) t
+    | h :: t -> helper (succ i) (f i acc h) t
   in
-  helper 0 
+  helper 0
 
-
-(** [List.fold_left_map] with indices  *)		
+(** [List.fold_left_map] with indices  *)
 let fold_left_mapi f acc xs =
   let rec helper i acc = function
-    | [] -> acc, []
-    | h::t ->
-       let acc, h = f i acc h in
-       let acc, t = helper (succ i) acc t in
-       acc, h::t
+    | [] -> (acc, [])
+    | h :: t ->
+        let acc, h = f i acc h in
+        let acc, t = helper (succ i) acc t in
+        (acc, h :: t)
   in
   helper 0 acc xs
-
-
-
-
-(** [z[y/x]] *)
-let substitute (x, y) z =
-  if z = x then y else z
-	 
 
 (** リストを "回転" する
     - [roll [1; 2; 3; 4] ---> [2; 3; 4; 1]]
     - TODO: もっと効率の良い実装にする．キューを使うなど
  *)
-let roll = function
-  | [] -> []
-  | h::t -> t@[h]
-
-
-
+let roll = function [] -> [] | h :: t -> t @ [ h ]
 
 (** Monadic while.
     Tail recursive.
@@ -298,16 +123,31 @@ let roll = function
     @param x 最初の入力値
     @return f をゼロ回以上適用して None になったら，その直前の x を返す
  *)
-let rec whileM f x =
-  match f x with
-  | None -> x
-  | Some x -> whileM f x
+let rec whileM f x = match f x with None -> x | Some x -> whileM f x
 
-
-
-
+(** リストの末尾を除去したリストを返す *)
 let rec dropLast1 = function
   | [] -> failwith "cannot drop the last element from an empty list"
-  | [_] -> []
-  | h::t -> h::dropLast1 t
-  
+  | [ _ ] -> []
+  | h :: t -> h :: dropLast1 t
+
+(** リストの要素の重複を取得する *)
+let get_dup_opt l =
+  let rec helper rest = function
+    | [] -> None
+    | h :: t -> if List.mem h rest then Some h else helper (h :: rest) t
+  in
+  helper [] l
+
+(** filter_map with indices  *)
+let filter_mapi f l =
+  let rec helper i = function [] -> [] | h :: t -> f h :: helper (succ i) t in
+  helper 0 l
+
+(** randomize list *)
+let rec shuffle = function
+  | [] -> []
+  | [ x ] -> [ x ]
+  | list ->
+      let before, after = List.partition (fun _ -> Random.bool ()) list in
+      List.rev_append (shuffle after) (shuffle before)

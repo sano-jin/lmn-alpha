@@ -1,0 +1,84 @@
+% yamamoto さんの brainf**k
+
+% プログラム本体（Hello world）
+program=[pc,inc,inc,inc,inc,inc,inc,inc,inc,inc,begin,next,inc,inc,inc,inc,inc,inc,inc,inc,next,inc,inc,inc,inc,inc,inc,inc,inc,inc,inc,inc,next,inc,inc,inc,inc,inc,prev,prev,prev,dec,end,next,out,next,inc,inc,out,inc,inc,inc,inc,inc,inc,inc,out,out,inc,inc,inc,out,next,dec,out,dec,dec,dec,dec,dec,dec,dec,dec,dec,dec,dec,dec,out,prev,inc,inc,inc,inc,inc,inc,inc,inc,out,dec,dec,dec,dec,dec,dec,dec,dec,out,inc,inc,inc,out,dec,dec,dec,dec,dec,dec,out,dec,dec,dec,dec,dec,dec,dec,dec,out,next,inc,out].
+
+% 入力
+input = [].
+
+% 出力
+ans = [].
+
+% レジスタファイル（メモリ）
+head = cur(p,z,tail).
+
+% next: 「>」ポインタを一つ進める（インクリメントする）
+PH= [pc,next|PT], H = cur(S1,N1,reg(S2,N2,T))
+  :- PH = [next,pc|PT], H = reg(S1,N1,cur(S2,N2,T)).
+PH= [pc,next|PT], H = cur(S1,N1,tail)
+  :- PH= [next,pc|PT], H = reg(S1,N1,cur(p,z,tail)).
+
+% prev: 「<」ポインタを一つ戻す（デクリメントする）
+PH= [pc,prev|PT], H = reg(S1,N1,cur(S2,N2,T))
+  :- PH= [prev,pc|PT], H = cur(S1,N1,reg(S2,N2,T)).
+PH= [pc,prev|PT], head = cur(S1,N1,T)
+  :- PH= [prev,pc|PT], head = cur(p,z,reg(S1,N1,T)).
+
+% out: 「.」現在ポインタが指している値を出力する
+PH= [pc,out|PT], H = cur(S,N,T), ans = A
+  :- PH= [out,pc|PT], H = cur(S1,N1,T), ans = [n(S2,N2)|A], cp(S1,S2,S), cp(N1,N2,N).
+
+% cp/3 : 補助関数的アトム cp(A,B,C) = CをAとBに再帰的に分配
+cp(A,B,s(C)) :- A=s(A1), B=s(B1), cp(A1,B1,C).
+cp(A,B,z) :- A=z, B=z.
+cp(A,B,p) :- A=p, B=p.
+cp(A,B,m) :- A=m, B=m.
+
+% in: 「,」1文字入力し、現在ポインタが指している値に代入する
+PH= [pc,in|PT], H = cur(S1,N1,T), input = [n(S2,N2)|A]
+  :- PH= [in,pc|PT], H = cur(S2,N2,T), input = A, rm(S1), rm(N1).
+
+% rm/1 : 補助関数的アトム rm(A) = Aを再帰的に削除
+rm(s(A)) :- rm(A).
+rm(z) :- .
+rm(p) :- .
+rm(m) :- .
+
+% inc: 「+」現在ポインタが指している値を1増やす（インクリメントする）
+PH = [pc,inc|PT], H = cur(p,N,T)
+  :- PH = [inc,pc|PT], H = cur(p,s(N),T).
+PH = [pc,inc|PT], H = cur(m,s(N),T)
+  :- PH = [inc,pc|PT], H = cur(m,N,T).
+PH = [pc,inc|PT], H = cur(m,z,T)
+  :- PH = [inc,pc|PT], H = cur(p,s(z),T).
+
+% dec: 「-」現在ポインタが指している値を1減らす（デクリメントする）
+PH = [pc,dec|PT], H = cur(m,N,T)
+  :- PH = [dec,pc|PT], H = cur(m,s(N),T).
+PH = [pc,dec|PT], H = cur(p,s(N),T)
+  :- PH = [dec,pc|PT], H = cur(p,N,T).
+PH = [pc,dec|PT], H = cur(p,z,T)
+  :- PH = [dec,pc|PT], H = cur(m,s(z),T).
+
+% begin-end loopの生成
+PH = [begin|PT] :- PH = [begin(X),search(X)|PT].
+PH1 = [begin(X)|PT1], PH2 = [search(X),end|PT2]
+  :- PH1 = [begin(X)|PT1], PH2 = [end(X)|PT2].
+PH = [search(X),next|PT] :- PH = [next,search(X)|PT].
+PH = [search(X),prev|PT] :- PH = [prev,search(X)|PT].
+PH = [search(X),out|PT] :- PH = [out,search(X)|PT].
+PH = [search(X),in|PT] :- PH = [in,search(X)|PT].
+PH = [search(X),inc|PT] :- PH = [inc,search(X)|PT].
+PH = [search(X),dec|PT] :- PH = [dec,search(X)|PT].
+
+% begin: 「[」現在ポインタが指している値が0であれば対応する「]」にジャンプする
+PH1 = [pc,begin(X)|PT1], PH2 = [end(X)|PT2], H = cur(S,z,T)
+  :- PH1 = [begin(X)|PT1], PH2 = [end(X),pc|PT2], H = cur(S,z,T).
+PH1 = [pc,begin(X)|PT1], PH2 = [end(X)|PT2], H = cur(S,s(N),T)
+  :- PH1 = [begin(X),pc|PT1], PH2 = [end(X)|PT2], H = cur(S,s(N),T).
+
+% end: 「]」現在ポインタが指している値が0でなければ対応する「[」にジャンプする
+PH1 = [begin(X)|PT1], PH2 = [pc,end(X)|PT2], H = cur(S,z,T)
+  :- PH1 = [begin(X)|PT1], PH2 = [end(X),pc|PT2], H = cur(S,z,T).
+PH1 = [begin(X)|PT1], PH2 = [pc,end(X)|PT2], H = cur(S,s(N),T)
+  :- PH1 = [begin(X),pc|PT1], PH2 = [end(X)|PT2], H = cur(S,s(N),T).

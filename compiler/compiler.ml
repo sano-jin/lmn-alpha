@@ -6,7 +6,6 @@ open Analyze
 open Generator
 open Util
 
-
 (** Compiles given string and return the generated intermediate code *)
 let compile = gen_ic <. sem_graph_of_process <. corelang_of_ast <. parse
 
