@@ -1,19 +1,20 @@
-h=h, h=h, h=h,
-h(c(L1,L2,A)),
-h(c(L2,L3,A)),
-h(c(L3,L4,B)),
-h(c(L4,L5,B)),
-h(c(L5,L6,C)),
-h(c(L6,L1,C)),
-ni.
+% h=h, h=h, h=h,
+% h(c(L1,L2,A)),
+% h(c(L2,L3,A)),
+% h(c(L3,L4,B)),
+% h(c(L4,L5,B)),
+% h(c(L5,L6,C)),
+% h(c(L6,L1,C)),
+% ni.
 
-h=h, h=h, h=h,
-h(c(L1,L2,A)),
-h(c(L2,L3,A)),
-h(c(L3,L4,B)),
-h(c(L4,L5,B)),
-h(c(L5,L6,C)),
-h(c(L6,L1,C)),
-ni
-:-
+% h=h, h=h, h=h,
+% h(c(L1,L2,A)),
+% h(c(L2,L3,A)),
+% h(c(L3,L4,B)),
+% h(c(L4,L5,B)),
+% h(c(L5,L6,C)),
+% h(c(L6,L1,C)),
+ni 
+:- 
 X = c(h,c(h,c(h,c(h,c(h,c(h,X,h),h),h),h),h),h), ni.
+

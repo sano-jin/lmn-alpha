@@ -1,9 +1,9 @@
 (menhir
-  (modules parser))
-  
+ (modules parser))
+
 (ocamllex lexer)
 
 (library
  (name parse)
  (public_name lmn.parser)
-  (libraries lmn.util))
+ (libraries lmn.util))

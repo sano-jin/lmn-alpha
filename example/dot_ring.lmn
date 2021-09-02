@@ -1,0 +1,6 @@
+Y = [c, d, a, b | Y]. 
+X = [a, b, c | X]. 
+
+
+Y = [a, b, c, d | Y] :- ok.  
+

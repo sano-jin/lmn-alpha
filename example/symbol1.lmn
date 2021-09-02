@@ -1,0 +1,8 @@
+hige ++ hoge, fuga.
+fuga = hige ++ hoge, fuga.
+fuga = hoge ++ hige :- b.
+fuga = hoge.
+
+% hoge @@ hoge + hoge, fuga :- a, hige.
+
+
