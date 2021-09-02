@@ -33,6 +33,15 @@ let rec eval_guard_exp env =
   | Atom (">=", [ x; y ]) -> GBoolVal (eval_binop_int ( >= ) x y)
   | Atom ("=", [ x; y ]) -> GBoolVal (eval_binop_int ( = ) x y)
   | Atom ("/=", [ x; y ]) -> GBoolVal (eval_binop_int ( <> ) x y)
+  (* | Atom (":", [ x; Atom ("int", []) ]) -> (
+       match eval_guard_exp env x with
+       | GIntVal _ -> GBoolVal true
+       | _ -> GBoolVal false)
+  *)
+  | Atom ("int", [ x ]) -> (
+      match eval_guard_exp env x with
+      | GIntVal _ -> GBoolVal true
+      | _ -> GBoolVal false)
   | Atom _ as atom ->
       failwith @@ "Error: unexpected operator " ^ Parse.string_of_atom atom
       ^ " in guard"
