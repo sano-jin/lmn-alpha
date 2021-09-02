@@ -1,0 +1,12 @@
+A=a(a(A)).
+X=a(Y) :- X=Y, ok1.
+
+B=b(b(B)).
+X=b(Y) :- X=c(Y), ok2.
+
+x(y,z).
+Y=x(X) :- X=Y, ok3.
+
+
+p(q,r).
+Y=E,E=p(X) :- X=F,F=Y, ok4.

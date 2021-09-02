@@ -1,0 +1,3 @@
+main.
+main :- $x = 1 | n($x).
+n($x) :- $x < NUM, $y = $x + 1 | n($y).

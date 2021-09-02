@@ -1,3 +1,9 @@
 (test
  (name test)
- (libraries lmn.util lmn.parser lmn.corelang lmn.analyzer lmn.generator lmn.compiler))
+ (libraries
+  lmn.util
+  lmn.parser
+  lmn.corelang
+  lmn.analyzer
+  lmn.generator
+  lmn.compiler))

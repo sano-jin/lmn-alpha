@@ -1,0 +1,6 @@
+ans = append(L1,L2).
+L1 = c(x1,c(x2,c(x3,nil))).
+L2 = c(x4,c(x5,nil)).
+
+Pre = append(nil,List) :- Pre = List.
+Pre = append(c(V,Next),List) :- Pre = c(V,append(Next,List)).
