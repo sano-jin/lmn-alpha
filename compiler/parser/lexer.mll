@@ -12,6 +12,8 @@ let alpha = lower | upper
 let alnum = digit | alpha | '\''
 let operator_symbol =
   ['+' '-' '/' '*' '<' '>' '=' '^' '~' '_' '&' '@' '$' '.' '?' '%' '#' '!' '|' ':' ';' '\'' '\\']
+let backslash_escapes =
+    ['\\' '\'' '"' 'n' 't' 'b' 'r' ' ']
 	       
 			      
 rule token = parse
@@ -83,6 +85,9 @@ rule token = parse
   | lower alnum*
     { SYMBOL (Lexing.lexeme lexbuf) }
 
+  (** quoted atom name *)
+  | '\''
+    { quoted (Buffer.create 256) lexbuf }
   
   (** link name *)
   | upper alnum*
@@ -108,3 +113,21 @@ rule token = parse
       in
       failwith message
     }
+
+
+and quoted buf = parse
+| '\''
+    { SYMBOL (Buffer.contents buf) }
+| '\\' (backslash_escapes as c)
+    { let char_for_backslash = function
+        | 'n' -> '\010'
+        | 'r' -> '\013'
+        | 'b' -> '\008'
+        | 't' -> '\009'
+        | c   -> c
+      in
+      Buffer.add_char buf (char_for_backslash c);
+      quoted buf lexbuf }
+| _ as c
+    { Buffer.add_char buf c;
+      quoted buf lexbuf }

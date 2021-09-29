@@ -1,4 +1,5 @@
-(** Analyze guard *)
+(** ガードの型推論を行う
+*)
 
 open Util
 open Port
@@ -26,27 +27,39 @@ let check_dup process_contexts =
 
 (** プロセス文脈の型 *)
 type pctx_type =
-  | TyInt
-  | TyFloat
-  | TyString
-  | TyBool
-  | TyUnary
-  | TyGround
-  | TyUntyped
+  | TyInt  (** integer type *)
+  | TyFloat  (** float type *)
+  | TyString  (** string type *)
+  | TyBool  (** boolean type *)
+  | TyUnary  (** unary type *)
+  | TyGround  (** ground type *)
+  | TyUntyped  (** 形無しプロセス文脈 *)
+  | TyVar of string  (** 型変数 *)
+
+type ty_env = string * pctx_type
+(** 型環境 *)
+
+(** 型変数への代入．[z[y/x]] *)
+let substitute_type_var x y = function
+  | TyVar z -> if z = x then y else TyVar z
+  | z -> z
+
+(** 型環境への代入．[env[y/x]] *)
+let substitute_type_env x y = List.map @@ second @@ substitute_type_var x y
 
 (** プロセス文脈の型を unification する *)
-let unify_pctx_type ty_x ty_y =
+let unify_pctx_type ty_env ty_x ty_y =
+  (* pair の sort *)
+  let ty_x, ty_y = if ty_x <= ty_y then (ty_x, ty_y) else (ty_y, ty_x) in
   match (ty_x, ty_y) with
-  | TyUntyped, ty_y -> Some ty_y
-  | ty_x, TyUntyped -> Some ty_x
-  | TyGround, ty_y -> Some ty_y
-  | ty_x, TyGround -> Some ty_x
-  | TyUnary, ty_y -> Some ty_y
-  | ty_x, TyUnary -> Some ty_x
-  | TyBool, TyBool -> Some TyBool
-  | TyInt, TyInt -> Some TyInt
-  | TyFloat, TyFloat -> Some TyFloat
-  | TyString, TyString -> Some TyString
+  | ty_x, TyVar y -> Some (substitute_type_env y ty_x, ty_x)
+  | ty_x, TyUntyped -> Some (ty_env, ty_x)
+  | ty_x, TyGround -> Some (ty_env, ty_x)
+  | ty_x, TyUnary -> Some (ty_env, ty_x)
+  | TyBool, TyBool -> Some (ty_env, TyBool)
+  | TyInt, TyInt -> Some (ty_env, TyInt)
+  | TyFloat, TyFloat -> Some (ty_env, TyFloat)
+  | TyString, TyString -> Some (ty_env, TyString)
   | _ -> None
 (* unification failed *)
 
