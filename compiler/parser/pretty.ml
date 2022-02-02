@@ -22,6 +22,7 @@ let rec string_of_arg precedence =
   | IntData i -> string_of_int i
   | ProcCtx p -> "$" ^ p
   | Link x -> x
+  | Atom ("[]", []) -> "[]"
   | Atom (p, [ x ]) -> (
       match analyze_atom_name p with
       | ANOp _ ->

@@ -17,7 +17,7 @@
 %token <string> OP8    (** +..., -... *)
 %token <string> OP7    (** :... *)
 %token <string> OP6    (** @..., ^... *)
-%token <string> OP5    (** =..., >..., <..., &..., $..., !... *)
+%token <string> OP5    (** =..., >..., <..., &..., $..., !..., |... *)
 %token <string> OP4    (** && *)
 %token <string> OP3    (** || *)
 %token <string> OP2    (** <-, :=, -> *)

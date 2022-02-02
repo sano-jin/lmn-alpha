@@ -1,0 +1,3 @@
+main. 
+main :- $n = 1 | a($n).
+a($n) :- int($n) | isInt.

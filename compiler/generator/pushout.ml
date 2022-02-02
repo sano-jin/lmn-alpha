@@ -42,10 +42,10 @@ let set_link_of_link reg_tbl atom2reg_i src_reg_i src_port_i
          hyper へ拡張するなら，リストの最終要素以外のリストという風にする必要がある *)
       let dst_reg_i = List.assoc dst_atom_i atom2reg_i in
 
+      (* 局所リンクに対応するポート情報のリストを回転させる *)
       let local_port_map =
         LocalPortMap.update x (Option.map roll) local_port_map
       in
-      (* 局所リンクに対応するポート情報のリストを回転させる *)
       (local_port_map, SetLink (src_reg_i, src_port_i, dst_reg_i, dst_port_i))
 
 (** 局所リンク・自由リンクに参照される（シンボル）アトムのリンクをセットする命令のリストを生成する 
@@ -84,19 +84,19 @@ let connects_of = List.map <. connect_of
 
 (** 確保すべきレジスタのサイズと生成した命令列を返す *)
 let push_atoms reg_tbl ((local_port_map, atoms), connectors) =
+  (* ルール右辺のアトムの生成 *)
   let reg_tbl, (atom2reg_i, push_atoms) = push_atoms_of reg_tbl atoms in
 
-  (* ルール右辺のアトムの生成 *)
+  (* ルール右辺の少なくとも片方が局所リンクとなっているリンクの接続を行う *)
   let _, set_or_re_links =
     set_links_of_atoms reg_tbl atom2reg_i local_port_map atoms
   in
 
-  (* ルール右辺の少なくとも片方が局所リンクとなっているリンクの接続を行う *)
+  (* ルール右辺の引数がどちらも自由リンクとなっているコネクタの接続を行う *)
   let connects = connects_of reg_tbl.free2reg_i connectors in
 
-  (* ルール右辺の引数がどちらも自由リンクとなっているコネクタの接続を行う *)
+  (* ルール左辺でマッチしたアトムを解放 *)
   let free_atoms = free_atoms_of @@ List.map snd reg_tbl.atom2reg_i in
 
-  (* ルール左辺でマッチしたアトムを解放 *)
   ( reg_tbl.free_reg_i (* 確保すべきレジスタのサイズ *),
     List.concat [ push_atoms; set_or_re_links; connects; free_atoms ] )

@@ -8,21 +8,48 @@ open Util
 
 (** Reduce as many as possible.
     Tail recursive (as it should be).
- *)
+*)
 let rec run_many tracer print_rule rules i atom_list =
   tracer i atom_list;
   match Eval.run_once atom_list rules with
   | None -> (atom_list, i)
   | Some (rule_name, atom_list) ->
-      print_rule rule_name;
-      run_many tracer print_rule rules (succ i) atom_list
+    print_rule rule_name;
+    run_many tracer print_rule rules (succ i) atom_list
 
 (** 初期状態を構築した後，最後まで実行して，最終状態を表示する *)
-let run tracer string_of_atoms print_rule (init_insts, rules) =
+let run tracer string_of_atoms print_final_state print_rule (init_insts, rules) =
   let initial_atom_list = init_atoms init_insts in
   let final_state, i = run_many tracer print_rule rules 0 initial_atom_list in
-  print_endline @@ "Final state | " ^ string_of_int i ^ " step(s):\n"
-  ^ string_of_atoms final_state
+  print_final_state @@ "Final state | " ^ string_of_int i ^ " step(s):\n"
+                       ^ string_of_atoms final_state
+
+(** The top level entry point for javascript *)
+let main_javascript prop =
+  try
+    let insts = compile prop.file in
+    if prop.compile_only then [string_of_prog insts]
+    else
+      (* VM の機能を使って参照を数値に変換してから pretty print あるいは dump する *)
+      let string_of_atoms =
+        (if prop.verbose then Dump.string_of_atom_list else Pretty.pretty_print)
+        <. dump_atom_list
+      in
+      let printed_strs_ref = ref [] in
+      let print str = printed_strs_ref := str :: !printed_strs_ref in
+      let tracer =
+        if prop.trace then fun i atoms ->
+          print @@ string_of_int i ^ ": " ^ string_of_atoms atoms
+        else fun _ _ -> ()
+      in
+      let print_rule =
+        if prop.trace then print <. ( ^ ) "----> " else const ()
+      in
+      let print_final_state = print in
+      run tracer string_of_atoms print_final_state print_rule @@ insts;
+      !printed_strs_ref
+  with Compiler.CompileError message -> [message]
+     | Failure message -> [message]
 
 (** The top level entry point *)
 let main () =
@@ -43,4 +70,5 @@ let main () =
     let print_rule =
       if prop.trace then print_endline <. ( ^ ) "----> " else const ()
     in
-    run tracer string_of_atoms print_rule @@ insts
+    let print_final_state = print_endline in
+    run tracer string_of_atoms print_final_state print_rule @@ insts
