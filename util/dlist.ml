@@ -13,22 +13,18 @@ type 'a t = 'a element option ref
 (** Basic list operations  *)
 
 let create () = ref None
-
 let is_empty t = Option.is_none !t
 
 (** 無効な初期値 *)
 let null_elt a = { value = a; next = None; prev = None }
 
 let value elt = elt.value
-
 let map_value f elt = { elt with value = f elt.value }
 
 (** Navigation using [element]s *)
 
 let first t = !t
-
 let next elt = elt.next
-
 let prev elt = elt.prev
 
 (** Whole-data-structure iteration *)

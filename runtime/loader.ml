@@ -5,15 +5,10 @@ open Util
 type prop = { verbose : bool; trace : bool; file : string; compile_only : bool }
 
 let usage_msg = "append [-t] [-v] <file1>"
-
 let verbose = ref false
-
 let trace = ref false
-
 let input_files = ref []
-
 let compile_only = ref false
-
 let anon_fun filename = input_files := filename :: !input_files
 
 let speclist =

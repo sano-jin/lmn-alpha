@@ -13,6 +13,8 @@ depends: [
   "menhir" {>= "20210419"}
   "dune" {>= "2.8" & > "1.5"}
   "odoc" {>= "1.5.3"}
+  "js_of_ocaml-ppx" {>= "4.0.0"}
+  "js_of_ocaml" {>= "4.0.0"}
 ]
 build: [
   ["dune" "subst"] {dev}

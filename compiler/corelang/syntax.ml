@@ -10,7 +10,6 @@ type c_link =
   | CIntData of int  (** 整数アトム *)
 
 type c_atom = string * c_link list
-
 type c_conn = string * string
 
 type c_rule =
@@ -28,9 +27,7 @@ let string_of_atom (p, xs) =
   p ^ " [" ^ String.concat ", " (List.map string_of_link xs) ^ "]"
 
 let string_of_atoms = String.concat ", " <. List.map string_of_atom
-
 let string_of_connector (x, y) = x ^ " = " ^ y
-
 let string_of_connectors = String.concat ", " <. List.map string_of_connector
 
 let string_of_rhs (atoms, conns) =

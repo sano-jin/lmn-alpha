@@ -1,7 +1,8 @@
 (executable
- ;; (public_name lmn)
+ (public_name lmn)
  (name main)
- (modes js)
- (libraries lmn.runtime)
- (preprocess
-  (pps js_of_ocaml-ppx)))
+ ;; (modes js)
+ (libraries lmn.runtime))
+
+;; (preprocess
+;;  (pps js_of_ocaml-ppx)))

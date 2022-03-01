@@ -3,7 +3,6 @@
 open Util
 
 type vm_atom = string * link array
-
 and vm_atom_elt = vm_atom DList.element
 
 and link =
