@@ -1,10 +1,10 @@
 (**  Parser *)
-     
+
 %{
   open Syntax
 %}
 
-(** tokens with values *)   
+(** tokens with values *)
 (** Symbol atom name *)
 %token <string> SYMBOL (** x, y, abc, ... *)
 %token <int>    INT (** 1, 2, -3, ... *)
@@ -44,12 +44,12 @@
 %token LBRACE (**  '{' *)
 %token RBRACE (**  '}' *)
  *)
-       
+
 (**  End of file *)
-%token EOF 
+%token EOF
 
 (**  Operator associativity *)
-%nonassoc COLMIN 
+%nonassoc COLMIN
 %nonassoc VBAR
 %right    COMMA
 %left     OP1
@@ -63,9 +63,9 @@
 %left     OP9
 %right    OP10
 %left     OP11
-%left     OP12 
+%left     OP12
 
-      
+
 %start main
 %type <Syntax.proc> main
 
@@ -114,8 +114,7 @@ main:
 
 (**  arguments of an atom separated by comma without parentheses *)
 args_inner:
-  | arg { [$1] }
-  | arg COMMA args_inner { $1::$3 }
+  | separated_list(COMMA, arg) { $1 }
 ;
 
 (**  argument of an atom *)
@@ -123,7 +122,7 @@ arg:
   | LINKNAME { Link $1 }
   | atom { $1 }
 ;
-    
+
 
 
 (** Syntax for an atom *)
@@ -131,7 +130,6 @@ arg:
 (** normal notation for denoting an atom *)
 normal_atom:
   | SYMBOL				{ Atom ($1, []) }	(** e.g. a *)
-  | SYMBOL LPAREN RPAREN		{ Atom ($1, []) }       (** e.g. a() *)
   | SYMBOL LPAREN args_inner RPAREN	{ Atom ($1, $3) }	(** e.g. a(X_1, ..., X_m) *)
 ;
 
@@ -139,11 +137,10 @@ normal_atom:
 (** List abbreviation *)
 cons_atom:
   | LBRACKET RBRACKET { Atom ("[]", []) }	(** e.g. [] *)
-  | LBRACKET VBAR atom RBRACKET { $3 }		(** e.g. [|a] == a *)
   | LBRACKET args_inner VBAR arg RBRACKET	(** e.g. [X_1, ..., X_m | a] *)
-     { List.fold_right (fun e l -> Atom (".", [e; l])) $2 $4 }   
+     { List.fold_right (fun e l -> Atom (".", [e; l])) $2 $4 }
   | LBRACKET args_inner RBRACKET		(** e.g. [X_1, ..., X_m] *)
-     { List.fold_right (fun e l -> Atom (".", [e; l])) $2 (Atom ("[]", [])) }   
+     { List.fold_right (fun e l -> Atom (".", [e; l])) $2 (Atom ("[]", [])) }
 ;
 
 
@@ -182,14 +179,14 @@ op_atom:
   | arg OP12  arg { Atom ($2, [$1; $3]) }
 ;
 
-  
+
 (** process context *)
 process_context:
   | DOLLAR SYMBOL 	{ ProcCtx $2 }
 ;
 
-  
-(** integer atom *)  
+
+(** integer atom *)
 integer_atom:
   | INT                 { IntData $1 }
   | MINUS INT           { IntData (- $2) }
@@ -205,7 +202,7 @@ unary_atom:
   | op_name unary_atom		{ Atom ($1, [$2]) }
 
 
-			
+
 (** atom *)
 atom:
   | normal_atom		{ $1 }
@@ -215,7 +212,7 @@ atom:
   | integer_atom        { $1 }
   | LPAREN atom RPAREN  { $2 }
   | unary_atom          { $1 }
-; 
+;
 
 
 (** Syntax for rules *)
@@ -236,7 +233,7 @@ rule:
 maybe_name_rule:
   | SYMBOL ATAT rule { Rule (Some $1, $3)}
   | rule { Rule (None, $1)}
-  
+
 
 (**  proccesses separeted by comma *)
 proc:
@@ -245,12 +242,12 @@ proc:
   | proc COMMA proc { Mol ($1, $3) }
 
   | maybe_name_rule {$1}
-  
+
   | LPAREN proc RPAREN { $2 }
 ;
 
 (** processes separeted by period *)
-block:       
+block:
   | proc DOT block { Mol ($1, $3) }
   | proc DOT { $1 }
   | proc { $1 }
