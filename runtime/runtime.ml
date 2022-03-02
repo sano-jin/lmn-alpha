@@ -5,6 +5,8 @@ open Eval
 open Loader
 open Generator
 open Util
+module Loader = Loader
+module Dump = Dump
 
 (** Reduce as many as possible.
     Tail recursive (as it should be).
@@ -24,34 +26,6 @@ let run tracer string_of_atoms print_final_state print_rule (init_insts, rules)
   let final_state, i = run_many tracer print_rule rules 0 initial_atom_list in
   print_final_state @@ "Final state | " ^ string_of_int i ^ " step(s):\n"
   ^ string_of_atoms final_state
-
-(** The top level entry point for javascript *)
-let main_javascript prop =
-  try
-    let insts = compile prop.file in
-    if prop.compile_only then [ string_of_prog insts ]
-    else
-      (* VM の機能を使って参照を数値に変換してから pretty print あるいは dump する *)
-      let string_of_atoms =
-        (if prop.verbose then Dump.string_of_atom_list else Pretty.pretty_print)
-        <. dump_atom_list
-      in
-      let printed_strs_ref = ref [] in
-      let print str = printed_strs_ref := str :: !printed_strs_ref in
-      let tracer =
-        if prop.trace then fun i atoms ->
-          print @@ string_of_int i ^ ": " ^ string_of_atoms atoms
-        else fun _ _ -> ()
-      in
-      let print_rule =
-        if prop.trace then print <. ( ^ ) "----> " else const ()
-      in
-      let print_final_state = print in
-      run tracer string_of_atoms print_final_state print_rule @@ insts;
-      !printed_strs_ref
-  with
-  | Compiler.CompileError message -> [ message ]
-  | Failure message -> [ message ]
 
 (** The top level entry point for binary execution *)
 let main () =

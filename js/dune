@@ -2,6 +2,15 @@
  ;; (public_name lmn)
  (name main)
  (modes js)
- (libraries lmn.runtime)
+ (libraries
+  lmn.util
+  lmn.parser
+  lmn.corelang
+  lmn.analyzer
+  lmn.generator
+  lmn.compiler
+  lmn.runtime
+  lmn.vm
+  lmn.pretty)
  (preprocess
   (pps js_of_ocaml-ppx)))
