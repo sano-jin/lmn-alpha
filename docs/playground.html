@@ -1,106 +1,82 @@
 <html>
   <head>
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300&display=swap" rel="stylesheet">
-    <script
-      type="text/javascript"
-      src="./javascript/main.bc.js"
-    ></script>
-<style>
-body {
-font-family: 'Source Code Pro', monospace;
-background-color: #ddd;
-color: #222;
-    margin-left: auto;
-    margin-right: auto;
-max-width: 800px;
-padding: 20px;
-}
-textarea {
-font-family: 'Source Code Pro', monospace;
-color: #222;
-background-color: #eee;
-min-width: 100%;
-padding: 10px;
-min-height: 400px;
-}
-div {
-    margin: 20px 10px;
-}
-
-div>div {
-    margin: 10px;
-}
-
-
-#run-button-wrapper>label {
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px solid gray;
-    padding: 10px 50px;
-}
-#run-button-wrapper>input {
-    display: none;
-}
-
-#result {
-background-color: #eee;
-padding: 10px;
-}
-</style>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300&display=swap"
+      rel="stylesheet"
+    />
+    <script type="text/javascript" src="./javascript/main.bc.js"></script>
+    <link href="playground-style.css" rel="stylesheet" />
   </head>
   <body>
+    <div id="ace-editor"></div>
 
+    <!--
     <textarea id="editor" name="w3review" rows="4" cols="50">
 ret = append(cons(a, cons(b, nil)), cons(c, nil)).
 
 append_cons @@
-R = append(cons(H, T), L) :- R = cons(H, append(T, L)).
+r = append(cons(h, t), l) :- r = cons(h, append(t, l)).
 
 append_nil @@
-R = append(nil, L) :- R = L.
-</textarea
+r = append(nil, l) :- r = l.
+    </textarea>
+    -->
 
-    <div>
-        <div>options</div>
-<div>
-  <input type="checkbox" id="trace" name="trace" checked>
-  <label for="trace">trace</label>
-</div>
+    <div class="options">
+      <div>options</div>
+      <div>
+        <input type="checkbox" id="trace" name="trace" checked />
+        <label for="trace">trace</label>
+      </div>
 
-    
-<div>
-  <input type="checkbox" id="verbose" name="verbose">
-  <label for="verbose">verbose</label>
-</div>
+      <div>
+        <input type="checkbox" id="verbose" name="verbose" />
+        <label for="verbose">verbose</label>
+      </div>
 
-<div>
-  <input type="checkbox" id="compile_only" name="compile_only">
-  <label for="compile_only">compile_only</label>
-</div>
+      <div>
+        <input type="checkbox" id="compile_only" name="compile_only" />
+        <label for="compile_only">compile_only</label>
+      </div>
     </div>
 
-<div id="run-button-wrapper">
-  <input type="button" id="run-button" name="run-button">
-  <label for="run-button">run</label>
-</div>
-
+    <div id="run-button-wrapper">
+      <input type="button" id="run-button" name="run-button" />
+      <label for="run-button">run</label>
+    </div>
 
     <div id="result"></div>
   </body>
-  <script>
-    document.getElementById("run-button").onclick = function () {
-      const element = document.getElementById("editor");
 
+  <script
+    src="src-noconflict/ace.js"
+    type="text/javascript"
+    charset="utf-8"
+  ></script>
+  <script>
+    var editor = ace.edit("ace-editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/prolog");
+    editor.setValue(
+      "ret = append(cons(a, cons(b, nil)), cons(c, nil)).\n" +
+        "append_cons @@ R = append(cons(H, T), L) :- R = cons(H, append(T, L)).\n" +
+        "append_nil @@ R = append(nil, L) :- R = L.",
+      -1
+    );
+    document.getElementById("run-button").onclick = function () {
       const trace = document.getElementById("trace");
       const verbose = document.getElementById("verbose");
       const compile_only = document.getElementById("compile_only");
-      
-      console.log(element.value);
-      const result = lmnAlpha.run(element.value, compile_only.checked, verbose.checked, trace.checked);
+
+      console.log(editor.getValue());
+      const result = lmnAlpha.run(
+        editor.getValue(),
+        compile_only.checked,
+        verbose.checked,
+        trace.checked
+      );
       document.getElementById("result").innerText = result;
     };
   </script>
