@@ -1,7 +1,7 @@
 # lmn-alpha
 _Experimental_
 
-A minimal compiler and runtime for a language based on graph rewriting.
+A minimal compiler and a runtime for a language based on graph rewriting.
 
 
 ## Getting Started
